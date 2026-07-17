@@ -1,0 +1,62 @@
+Nanashi-187 Non-Commercial No-Derivatives Software License 1.0
+
+Copyright (c) 2026 nanashi-187. All rights reserved.
+
+This license applies to the original source code, compiled binaries,
+documentation, and other original materials in this repository (the
+"Software"). Third-party software, game assets, and trademarks remain subject
+to their respective owners' terms.
+
+1. Permission
+
+Subject to the conditions below, you may, without charge:
+
+- use the Software for personal, private, and non-commercial purposes;
+- inspect the source code and compile an unmodified copy for such use; and
+- share verbatim, unmodified copies of the Software for non-commercial
+  purposes, provided that this license and all copyright and attribution
+  notices accompany every copy.
+
+2. Restrictions
+
+Unless you first obtain explicit written permission from nanashi-187, you may
+not:
+
+- use the Software, or any part of it, for a commercial purpose;
+- sell, rent, license for a fee, monetize, or otherwise commercially exploit
+  the Software;
+- modify, adapt, translate, merge, port, or create derivative works based on
+  the Software;
+- distribute modified versions, derivative works, or builds made from
+  modified source code;
+- sublicense the Software or grant others rights beyond those stated here; or
+- remove or alter copyright, attribution, or license notices.
+
+"Commercial purpose" includes use primarily intended for commercial
+advantage or monetary compensation. Donations that are not required to access
+the Software do not by themselves make otherwise permitted use commercial.
+
+3. Permission Requests
+
+Permission for commercial use, modifications, derivatives, ports, or other
+uses outside this license may be requested from nanashi-187 through the
+repository owner's GitHub contact channels. Permission is valid only when
+given explicitly in writing.
+
+4. Termination
+
+Your rights under this license terminate automatically if you breach its
+terms. Upon termination, you must stop using and distributing the Software
+and delete all copies in your possession or control. Sections intended by
+their nature to survive termination remain effective.
+
+5. Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT
+PERMITTED BY LAW, THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM,
+DAMAGE, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE SOFTWARE OR ITS USE.
+
+This is a source-available license, not an open-source license as defined by
+the Open Source Initiative.
