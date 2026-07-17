@@ -1,5 +1,7 @@
 # COM3D2.DoubleNipple
 
+[![Latest Release](https://img.shields.io/github/v/release/nanashi-187/COM3D2_Double_Nipple_Accessory)](https://github.com/nanashi-187/COM3D2_Double_Nipple_Accessory/releases/latest)
+
 A BepInEx plugin for COM3D2 that allows two nipple accessories to remain equipped at the same time, including two-sided and left/right-specific combinations.
 
 ## Requirements
@@ -8,7 +10,9 @@ A BepInEx plugin for COM3D2 that allows two nipple accessories to remain equippe
 - BepInEx 5
 
 ## Installation
+# COM3D2 Double Nipple Accessory
 
+[Download the latest release package](https://github.com/nanashi-187/COM3D2_Double_Nipple_Accessory/releases/latest)
 Download `COM3D2.DoubleNipple.Accessory-0.6.47.zip`, extract it, then copy `COM3D2.DoubleNipple.dll` into:
 
 ```text
