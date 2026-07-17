@@ -9,6 +9,8 @@ A BepInEx plugin for COM3D2 that allows two nipple accessories to remain equippe
 
 ## Installation
 
+[Download DoubleNipple.dll](https://github.com/nanashi-187/COM3D2_Double_Nipple_Accessory/releases/download/v0.6.47/COM3D2.DoubleNipple.Accessory-0.6.47.zip)
+
 Copy `COM3D2.DoubleNipple.dll` into:
 
 ```text
