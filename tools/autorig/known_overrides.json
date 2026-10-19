@@ -1,0 +1,3 @@
+{
+  "_comment": "Shared fixes for specific mods, applied automatically. Keyed by model file name; see README.md for the options. Your own overrides.json (passed with --overrides) is applied on top."
+}

@@ -92,8 +92,39 @@ def physics_roots(m):
     return roots, children
 
 
-def rig(data, new_name):
-    """Return (new model bytes, report dict). Raises ValueError when nothing can be rigged."""
+def dangle_options(options, bone_name):
+    """Model-wide options, with any per-dangle entry ("dangles": {bone name: {...}}) on top."""
+    merged = {k: v for k, v in (options or {}).items() if k != "dangles"}
+    merged.update(((options or {}).get("dangles") or {}).get(bone_name, {}))
+    return merged
+
+
+def joint_positions(length, opts, bone_name):
+    """Distances (m) from the dangle's top where the new joints go."""
+    if "pivots_cm" in opts:
+        joints = [x / 100.0 for x in opts["pivots_cm"]]
+        if not joints or any(b <= a for a, b in zip(joints, joints[1:])) or joints[0] <= 0 or joints[-1] >= length:
+            raise ValueError("%s: pivots_cm must increase and lie between 0 and %.1f cm"
+                             % (bone_name, length * 100))
+        return joints
+    segments = opts.get("joints") or max(2, min(MAX_SEGMENTS, int(round(length / TARGET_SEGMENT))))
+    return [length * k / segments for k in range(1, segments)]
+
+
+def preset_name(name, preset):
+    if preset == "hard":
+        return name.replace("_yure_soft_", "_yure_hard_")
+    if preset == "keep":
+        return name
+    return name.replace("_yure_hard_", "_yure_soft_")
+
+
+def rig(data, new_name, options=None):
+    """Return (new model bytes, report dict). Raises ValueError when nothing can be rigged.
+
+    options (from overrides.json) may set joints, pivots_cm, all_rigid and preset for the whole
+    model, and per dangle under "dangles": {root bone name: {...}}.
+    """
     m = Model(data)
     roots, children = physics_roots(m)
     pieces = mesh_pieces(m)
@@ -108,17 +139,24 @@ def rig(data, new_name):
         length = math.sqrt(sum(c * c for c in offset))
         if length < MIN_LENGTH or m.bone_names[y] not in m.skin_bones:
             continue
-        segments = max(2, min(MAX_SEGMENTS, int(round(length / TARGET_SEGMENT))))
+        opts = dangle_options(options, m.bone_names[y])
+        if opts.get("skip"):
+            continue
+        joints = joint_positions(length, opts, m.bone_names[y])
+        smallest = min(b - a for a, b in zip([0.0] + joints, joints + [length]))
         axis = [c / length for c in offset]
-        joints = [length * k / segments for k in range(1, segments)]
         plans.append({"bone": y, "nub": nub, "length": length, "axis": axis, "joints": joints,
                       "skin": m.skin_bones.index(m.bone_names[y]),
-                      "blend": min(MAX_BLEND, BLEND_SHARE * length / segments)})
+                      "blend": min(MAX_BLEND, BLEND_SHARE * smallest),
+                      "all_rigid": bool(opts.get("all_rigid")), "preset": opts.get("preset", "soft")})
     if not plans:
-        raise ValueError("no single-joint dangle of %.0f cm or more" % (MIN_LENGTH * 100))
+        raise ValueError("no single-joint dangle of %.0f cm or more to rig" % (MIN_LENGTH * 100))
 
     # ---- bones: new segment bones go right after their root so they are its first child.
-    renamed = {n: n.replace("_yure_hard_", "_yure_soft_") for n in m.bone_names}
+    renamed = {n: n for n in m.bone_names}
+    for p in plans:
+        name = m.bone_names[p["bone"]]
+        renamed[name] = preset_name(name, p["preset"])
     order, new_local, new_parent = [], {}, {}
     plan_by_bone = {p["bone"]: p for p in plans}
     used = set(m.bone_names)
@@ -194,7 +232,7 @@ def rig(data, new_name):
             along, across = hi[0] - lo[0], max(hi[1] - lo[1], hi[2] - lo[2])
             # Only a long, thin piece (cord, ribbon, one-piece chain) bends; a pendant as wide as
             # it is tall (heart, bell, gem) stays rigid however far it reaches.
-            if along > FLEXIBLE_EXTENT * p["length"] and across < THIN_RATIO * along:
+            if not p["all_rigid"] and along > FLEXIBLE_EXTENT * p["length"] and across < THIN_RATIO * along:
                 p["flexible"] += 1
             else:
                 p["piece_s"][piece] = sum(x[0] for x in values) / len(values)
