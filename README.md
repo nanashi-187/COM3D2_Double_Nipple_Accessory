@@ -40,6 +40,10 @@ From PowerShell:
 
 The DLL is written to `bin/COM3D2.DoubleNipple.dll` by default. Visual Studio 2022 Build Tools and its Roslyn C# compiler are required.
 
+## Accessory auto-rigger
+
+`tools/autorig/` contains offline Python tools that scan your accessory mods and write multi-joint copies of single-bone dangles (chains, tassels, pendants) so they bend under the swing options. Originals are never modified. See [tools/autorig/README.md](tools/autorig/README.md).
+
 ## Notes
 
 - The plugin does not modify game or mod asset files.
