@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
   /reference:"$bepInEx\0Harmony.dll" `
   /reference:"$managed\Assembly-CSharp.dll" `
   /reference:"$managed\UnityEngine.dll" `
-  (Join-Path $PSScriptRoot 'src\DoubleNipple.cs')
+  (Get-ChildItem (Join-Path $PSScriptRoot 'src') -Filter *.cs | ForEach-Object { $_.FullName })
 
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host $OutputPath
