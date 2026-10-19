@@ -39,9 +39,20 @@ namespace COM3D2.DoubleNipple
         private Vector3 _liveBasePosition;
         private Quaternion _liveBaseRotation;
 
+        private const int ContactLogIntervalFrames = 120;
+        private static readonly AccessTools.FieldRef<TBoneHair_, List<THair1>> HairChains =
+            AccessTools.FieldRefAccess<TBoneHair_, List<THair1>>("hair1list");
+
         private BoneHair2 _boneHair2;
         private BoneHair3 _boneHair3;
         private TBoneHair_ _legacyBoneHair;
+
+        // Stand-in with no spheres, swapped in while "Preserved Layer Body Collision" is off. The real
+        // TBodyHit is shared with the slot's own controller, so it is never modified.
+        private TBodyHit _noCollision;
+        private int _contactFrames;
+        private int _contactPoints;
+        private int _chainPoints;
 
         // Copies made by this plugin, plus the slot's original deletion list (meshes, materials and
         // textures COM3D2 created for this accessory). Both are destroyed together with the layer.
@@ -306,7 +317,7 @@ namespace COM3D2.DoubleNipple
 
                 if (_legacyBoneHair != null)
                 {
-                    _legacyBoneHair.Update();
+                    UpdateLegacyRig();
                 }
 
                 if (_boneHair3 != null)
@@ -332,6 +343,78 @@ namespace COM3D2.DoubleNipple
                     }
                 }
             }
+        }
+
+        private void UpdateLegacyRig()
+        {
+            var bodyHit = _legacyBoneHair.bodyhit;
+            var bypass = bodyHit != null && !DoubleNipplePlugin.PreservedLayerBodyCollision;
+            if (bypass)
+            {
+                if (_noCollision == null)
+                {
+                    _noCollision = new TBodyHit();
+                }
+
+                // Proc() reads RotOffset for the chain's orientation, so it must match the real data.
+                _noCollision.RotOffset = bodyHit.RotOffset;
+                _legacyBoneHair.bodyhit = _noCollision;
+            }
+
+            try
+            {
+                _legacyBoneHair.Update();
+            }
+            finally
+            {
+                if (bypass)
+                {
+                    _legacyBoneHair.bodyhit = bodyHit;
+                }
+            }
+
+            if (Log.VerboseEnabled)
+            {
+                CountContacts(bypass);
+            }
+        }
+
+        // THp.Secchi is set by TBodyHit.SphereMove_hair2 when a point is inside a collision sphere,
+        // which is also when its velocity gets damped.
+        private void CountContacts(bool collisionBypassed)
+        {
+            var chains = HairChains(_legacyBoneHair);
+            if (chains == null)
+            {
+                return;
+            }
+
+            for (var c = 0; c < chains.Count; c++)
+            {
+                var points = chains[c].hplist;
+                for (var p = 1; p < points.Count; p++)
+                {
+                    _chainPoints++;
+                    if (points[p].Secchi)
+                    {
+                        _contactPoints++;
+                    }
+                }
+            }
+
+            if (++_contactFrames < ContactLogIntervalFrames)
+            {
+                return;
+            }
+
+            var perFrame = _chainPoints / (float)_contactFrames;
+            var touching = _contactPoints / (float)_contactFrames;
+            Log.Verbose("contact " + SlotId + ": " + touching.ToString("0.0") + " of " + perFrame.ToString("0")
+                + " chain points touching body-collision spheres (avg over " + _contactFrames + " frames, collision "
+                + (collisionBypassed ? "OFF" : "on") + ")");
+            _contactFrames = 0;
+            _contactPoints = 0;
+            _chainPoints = 0;
         }
 
         private static bool IsUnitScale(float value)
