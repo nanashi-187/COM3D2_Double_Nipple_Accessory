@@ -24,6 +24,9 @@ namespace COM3D2.DoubleNipple
         private const float AccessoryRadius = 0.01f;
 
         private static readonly List<Transform> ChainBones = new List<Transform>();
+        private static readonly List<float> Shares = new List<float>();
+
+        public const float MaxTaper = 3f;
 
         private static readonly AccessTools.FieldRef<TBoneHair_, List<THair1>> Chains =
             AccessTools.FieldRefAccess<TBoneHair_, List<THair1>>("hair1list");
@@ -138,13 +141,32 @@ namespace COM3D2.DoubleNipple
 
             var settle = 1f - Mathf.Exp(-Time.deltaTime / SettleSeconds);
             var posed = Mathf.Min(count, ChainBones.Count);
-            var taperExponent = 2f * Mathf.Clamp01(DoubleNipplePlugin.NippleChainSwingTaper);
+            ComputeShares(posed);
             for (var i = 0; i < posed; i++)
             {
-                // A chain carrying a pendant is under the most tension at the top, so the extra swing
-                // ramps from little at the root to the full strength at the last joint.
-                var share = Mathf.Pow((i + 1) / (float)posed, taperExponent);
-                Amplify(i, settle, 1f + (Strength - 1f) * share, spheres);
+                Amplify(i, settle, 1f + (Strength - 1f) * Shares[i], spheres);
+            }
+        }
+
+        // A chain carrying a pendant is under the most tension at the top, so the extra swing is moved
+        // from the root towards the last joint. Shares follow ((i + 1) / n)^(2 * taper) and are scaled
+        // to average 1, so the taper redistributes the extra swing without reducing it overall.
+        private static void ComputeShares(int posed)
+        {
+            Shares.Clear();
+            var exponent = 2f * Mathf.Clamp(DoubleNipplePlugin.NippleChainSwingTaper, 0f, MaxTaper);
+            var sum = 0f;
+            for (var i = 0; i < posed; i++)
+            {
+                var share = Mathf.Pow((i + 1) / (float)posed, exponent);
+                Shares.Add(share);
+                sum += share;
+            }
+
+            var scale = sum > 0f ? posed / sum : 1f;
+            for (var i = 0; i < posed; i++)
+            {
+                Shares[i] *= scale;
             }
         }
 
