@@ -10,7 +10,7 @@ namespace COM3D2.DoubleNipple
     {
         public const string Guid = "local.com3d2.doublenipple";
         public const string Name = "COM3D2 Double Nipple Accessory";
-        public const string Version = "0.7.3";
+        public const string Version = "0.7.4";
 
         internal static DoubleNipplePlugin Instance { get; private set; }
 
