@@ -138,13 +138,17 @@ namespace COM3D2.DoubleNipple
 
             var settle = 1f - Mathf.Exp(-Time.deltaTime / SettleSeconds);
             var posed = Mathf.Min(count, ChainBones.Count);
+            var taperExponent = 2f * Mathf.Clamp01(DoubleNipplePlugin.NippleChainSwingTaper);
             for (var i = 0; i < posed; i++)
             {
-                Amplify(i, settle, spheres);
+                // A chain carrying a pendant is under the most tension at the top, so the extra swing
+                // ramps from little at the root to the full strength at the last joint.
+                var share = Mathf.Pow((i + 1) / (float)posed, taperExponent);
+                Amplify(i, settle, 1f + (Strength - 1f) * share, spheres);
             }
         }
 
-        private static void Amplify(int index, float settle, List<THitSphere> spheres)
+        private static void Amplify(int index, float settle, float jointStrength, List<THitSphere> spheres)
         {
             var bone = ChainBones[index];
             var current = bone.localRotation;
@@ -178,7 +182,7 @@ namespace COM3D2.DoubleNipple
             // Never push the chain deeper into the body-collision spheres than the physics pose is:
             // halve the extra swing until it stops making contact worse, or fall back to the physics pose.
             var physicsDepth = Depth(index, spheres);
-            var strength = Strength;
+            var strength = jointStrength;
             for (var attempt = 0; attempt <= MaxCollisionRetries; attempt++)
             {
                 var amplified = Mathf.Clamp(angle * strength, -MaxSwingDegrees, MaxSwingDegrees);

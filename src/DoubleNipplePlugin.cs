@@ -10,7 +10,7 @@ namespace COM3D2.DoubleNipple
     {
         public const string Guid = "local.com3d2.doublenipple";
         public const string Name = "COM3D2 Double Nipple Accessory";
-        public const string Version = "0.7.4";
+        public const string Version = "0.7.5";
 
         internal static DoubleNipplePlugin Instance { get; private set; }
 
@@ -25,6 +25,12 @@ namespace COM3D2.DoubleNipple
             get { return Instance == null || Instance._swingStrength == null ? 1f : Instance._swingStrength.Value; }
         }
 
+        internal static float NippleChainSwingTaper
+        {
+            get { return Instance == null || Instance._swingTaper == null ? 0.5f : Instance._swingTaper.Value; }
+        }
+
+        private ConfigEntry<float> _swingTaper;
         private ConfigEntry<bool> _verboseLogging;
         private ConfigEntry<bool> _bodyCollision;
         private ConfigEntry<float> _swingStrength;
@@ -51,6 +57,13 @@ namespace COM3D2.DoubleNipple
                     + "their settled pose. 1 = the game's own motion. Only legacy (TBoneHair) rigs, i.e. bones named "
                     + "_yure_soft_ / _yure_hard_ / _yure_, are affected.",
                     new AcceptableValueRange<float>(0.5f, 4f)));
+
+            _swingTaper = Config.Bind("Physics", "Nipple Chain Swing Taper", 0.5f,
+                new ConfigDescription(
+                    "How the extra swing from Swing Strength is spread along a chain. 0 = every joint gets the same "
+                    + "extra swing. Higher values keep the top of the chain (under the most tension from the pendant) "
+                    + "stiffer and leave the full extra swing to the lowest joints: 0.5 ramps linearly, 1 quadratically.",
+                    new AcceptableValueRange<float>(0f, 1f)));
 
             SecondaryStore.Init(Config);
             Harmony.CreateAndPatchAll(typeof(Patches), Guid);
