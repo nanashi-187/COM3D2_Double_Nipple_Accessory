@@ -14,7 +14,7 @@ A BepInEx plugin for COM3D2 that allows two nipple accessories to remain equippe
 
 [Download the latest release package](https://github.com/nanashi-187/COM3D2_Double_Nipple_Accessory/releases/latest)
 
-Download `COM3D2.DoubleNipple.Accessory-0.6.47.zip`, extract it, then copy `COM3D2.DoubleNipple.dll` into:
+Download the release zip, extract it, then copy `COM3D2.DoubleNipple.dll` into:
 
 ```text
 COM3D2/BepInEx/plugins/
@@ -44,6 +44,9 @@ The DLL is written to `bin/COM3D2.DoubleNipple.dll` by default. Visual Studio 20
 
 - The plugin does not modify game or mod asset files.
 - Compatibility depends on the accessory's menu/model implementation. Report reproducible combinations with the BepInEx log.
+- Detailed telemetry is off by default. Set `Verbose Logging = true` under `[Debug]` in `BepInEx/config/local.com3d2.doublenipple.cfg` before capturing a log for a bug report.
+- Experimental: `[Physics] Preserved Layer Body Collision = false` lets accessory 2's legacy (TBoneHair) gravity rig ignore the body-collision spheres, which damp a chain's motion by up to 80% per frame while it is inside them. Chains may then pass into the body. With verbose logging on, the log reports how many of accessory 2's chain points are touching those spheres.
+- Experimental: `[Physics] Nipple Chain Swing Strength` (0.5–4, default 1) multiplies how far the legacy (TBoneHair) chains of nipple accessories swing away from their settled pose, for both accessory 1 and 2. The game's chain physics is unchanged; only the displayed swing is scaled, and the extra swing is reduced wherever it would push the chain deeper into the body-collision spheres than the physics pose. `[Physics] Nipple Chain Swing Taper` (0–3, default 0.5) redistributes that extra swing along the chain without changing its total: 0 = equal at every joint, higher values move it from the top of the chain to the lowest joints, like a chain carrying a heavy pendant.
 
 ## License
 
@@ -99,6 +102,7 @@ PowerShell から次のコマンドを実行します。
 - ゲーム本体や MOD のアセットファイルは変更しません。
 - 互換性は各アクセサリーのメニューおよびモデル実装に依存します。
 - 問題を報告する場合は、再現できるアクセサリーの組み合わせと BepInEx のログを添付してください。
+- 詳細ログは既定で無効です。報告用のログを取る前に、`BepInEx/config/local.com3d2.doublenipple.cfg` の `[Debug]` にある `Verbose Logging = true` を設定してください。
 
 ---
 
@@ -175,13 +179,25 @@ flowchart LR
 
 ### Attachment and animation maintenance
 
-`Update()` keeps each preserved layer active and follows COM3D2's native morph attachment point when available. If an accessory lacks that metadata, the plugin follows a persistent skinning bone or the corresponding live nipple slot while retaining the original offset. `LateUpdate()` runs after normal animation updates to advance supported hair/physics controllers and synchronize internal cloned bone transforms. This keeps the layer attached during breathing, posing, morphing, and gravity-driven movement.
+`Update()` keeps each preserved layer active and follows COM3D2's native morph attachment point when available. If an accessory lacks that metadata, the plugin follows a persistent skinning bone or the corresponding live nipple slot while retaining the original offset. Attachment and physics run in a postfix of `TBody.SkinMeshUpdate`, the same point where COM3D2 updates its own slots (after animation, IK and breast jiggle). The preserved layer keeps the gravity controllers COM3D2 created for it, shares the slot's body-hit data, resets on `TBody.WarpInit`, and runs physics with the maid's scale normalized, as the game does. This keeps the layer attached during breathing, posing, morphing, and gravity-driven movement.
 
 Left/right-specific menus are handled per changed native slot. If COM3D2 already leaves a valid right/left directional pair loaded, the plugin avoids preservation and leaves the native result alone.
 
 ### Removal path
 
 With `Ctrl` held, Harmony intercepts `SetProp` delete-menu filenames, `DelProp`, or `ResetProp` for `MPN.accnip`. The plugin destroys only its preserved secondary resources and suppresses that secondary-clear call, so COM3D2's primary accessory remains equipped.
+
+### Source layout
+
+| File | Responsibility |
+| --- | --- |
+| `src/DoubleNipplePlugin.cs` | BepInEx entry point, config, frame callbacks |
+| `src/Patches.cs` | Harmony patches; forwards nipple events to the controller |
+| `src/SecondaryLayerController.cs` | Per-maid equip, restore and replay flow |
+| `src/PreservedLayer.cs` | Taking over a slot's object, following the body, physics, cleanup |
+| `src/SwingAmplifier.cs` | Optional swing exaggeration for nipple accessory chains |
+| `src/SecondaryStore.cs` | Per-maid saved secondary filename in the config file |
+| `src/Slots.cs`, `src/Log.cs` | Slot/property helpers and logging |
 
 ### APIs used
 
@@ -270,9 +286,9 @@ flowchart LR
 上図は Unity リソースの所有関係です。保持される `GameObject` は COM3D2 がロードした実物であり、階層全体を `Instantiate` したコピーではありません。ただし、後から COM3D2 が元スロットを掃除しても描画資源が消えないよう、メッシュ、マテリアル、テクスチャはプラグイン専用コピーにします。アクセサリー2を外す際は、これらの専用リソースも明示的に破棄します。
 ## Current Release Name / 現在のリリース名
 
-The current BepInEx display name is **COM3D2 Double Nipple Accessory**, version **0.6.47**. The DLL filename and stable plugin GUID remain unchanged for upgrade compatibility.
+The current BepInEx display name is **COM3D2 Double Nipple Accessory**, version **0.7.6**. The DLL filename and stable plugin GUID remain unchanged for upgrade compatibility.
 
-現在の BepInEx 表示名は **COM3D2 Double Nipple Accessory**、バージョンは **0.6.47** です。アップグレード互換性を保つため、DLL ファイル名とプラグイン GUID は変更していません。
+現在の BepInEx 表示名は **COM3D2 Double Nipple Accessory**、バージョンは **0.7.6** です。アップグレード互換性を保つため、DLL ファイル名とプラグイン GUID は変更していません。
 
 ## License Update / ライセンス更新
 
