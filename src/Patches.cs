@@ -48,7 +48,6 @@ namespace COM3D2.DoubleNipple
         private static void SkinMeshUpdatePostfix(TBody __instance)
         {
             SecondaryLayerController.OnSkinMeshUpdated(__instance);
-            SwingAmplifier.ApplyToNativeSlots(__instance);
         }
 
         [HarmonyPostfix]
