@@ -373,6 +373,8 @@ namespace COM3D2.DoubleNipple
                 }
             }
 
+            SwingAmplifier.Apply(_legacyBoneHair);
+
             if (Log.VerboseEnabled)
             {
                 CountContacts(bypass);
