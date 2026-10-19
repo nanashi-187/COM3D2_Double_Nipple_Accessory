@@ -4,5 +4,3 @@ obj/
 *.suo
 .vs/
 LogOutput.log
-__pycache__/
-*.pyc
