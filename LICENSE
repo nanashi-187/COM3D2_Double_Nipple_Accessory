@@ -1,4 +1,4 @@
-Nanashi-187 Non-Commercial No-Derivatives Software License 1.0
+Nanashi-187 Non-Commercial No-Derivatives Software License 1.1
 
 Copyright (c) 2026 nanashi-187. All rights reserved.
 
@@ -29,12 +29,22 @@ not:
   the Software;
 - distribute modified versions, derivative works, or builds made from
   modified source code;
-- sublicense the Software or grant others rights beyond those stated here; or
-- remove or alter copyright, attribution, or license notices.
+- sublicense the Software or grant others rights beyond those stated here;
+- remove or alter copyright, attribution, or license notices;
+- scrape, harvest, or bulk-collect the Software; or
+- use the Software, or any part of it, for text and data mining, to train,
+  fine-tune, validate, or evaluate any machine learning or artificial
+  intelligence model, or as part of a dataset for those purposes.
 
 "Commercial purpose" includes use primarily intended for commercial
 advantage or monetary compensation. Donations that are not required to access
 the Software do not by themselves make otherwise permitted use commercial.
+
+nanashi-187 expressly reserves all rights in the Software against text and
+data mining, including under Article 4(3) of Directive (EU) 2019/790. These
+restrictions do not limit ordinary viewing, forking, or cloning through
+GitHub as its Terms of Service allow, search-engine indexing, or any right
+that applicable law does not allow a license to exclude.
 
 3. Permission Requests
 
